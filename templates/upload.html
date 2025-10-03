@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Upload File - TeamConnect{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>
+            <i class="fas fa-upload"></i>
+            Upload File
+        </h1>
+        <p>Share files with your team members across the network</p>
+    </div>
+
+    <div class="upload-container">
+        <form method="post" enctype="multipart/form-data" class="upload-form">
+            <div class="upload-area" id="upload-area">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="upload-text">
+                    <h3>Drag and drop your file here</h3>
+                    <p>or click to browse</p>
+                    <input type="file" id="file" name="file" required accept="*/*">
+                </div>
+            </div>
+
+            <div class="file-info" id="file-info" style="display: none;">
+                <div class="file-preview">
+                    <i class="fas fa-file"></i>
+                    <div class="file-details">
+                        <span class="file-name" id="file-name"></span>
+                        <span class="file-size" id="file-size"></span>
+                    </div>
+                    <button type="button" class="remove-file" id="remove-file">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="upload-btn" disabled>
+                    <i class="fas fa-upload"></i>
+                    Upload File
+                </button>
+                <a href="/dashboard" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </form>
+
+        <div class="upload-guidelines">
+            <h3>
+                <i class="fas fa-info-circle"></i>
+                Upload Guidelines
+            </h3>
+            <ul>
+                <li><i class="fas fa-check"></i> All file types are supported</li>
+                <li><i class="fas fa-check"></i> Files are accessible to all team members</li>
+                <li><i class="fas fa-check"></i> Original filename is preserved</li>
+                <li><i class="fas fa-check"></i> Upload activity is logged</li>
+                <li><i class="fas fa-exclamation-triangle"></i> Large files may take time to upload</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

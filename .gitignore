@@ -1,0 +1,16 @@
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+
+# Folders
+uploads/
+data/

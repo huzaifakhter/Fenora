@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Login - TeamConnect{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <i class="fas fa-share-alt login-icon"></i>
+            <h1>TeamConnect</h1>
+            <p>Share resources across your local network</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" class="login-form">
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-user"></i>
+                    Username
+                </label>
+                <input type="text" id="username" name="username" required 
+                       placeholder="Enter your username" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i>
+                    Password
+                </label>
+                <input type="password" id="password" name="password" required 
+                       placeholder="Enter your password" autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">
+                <i class="fas fa-sign-in-alt"></i>
+                Sign In
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <div class="default-credentials">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

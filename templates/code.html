@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Share Code - TeamConnect{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>
+            <i class="fas fa-code"></i>
+            Share Code Snippet
+        </h1>
+        <p>Share code snippets with syntax highlighting</p>
+    </div>
+
+    <div class="code-container">
+        <form method="post" class="code-form">
+            <div class="form-group">
+                <label for="title">
+                    <i class="fas fa-heading"></i>
+                    Title
+                </label>
+                <input type="text" id="title" name="title" required 
+                       placeholder="Enter a descriptive title for your code snippet">
+            </div>
+
+            <div class="form-group">
+                <label for="language">
+                    <i class="fas fa-code"></i>
+                    Language
+                </label>
+                <select id="language" name="language">
+                    <option value="text">Plain Text</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                    <option value="java">Java</option>
+                    <option value="csharp">C#</option>
+                    <option value="cpp">C++</option>
+                    <option value="c">C</option>
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                    <option value="sql">SQL</option>
+                    <option value="json">JSON</option>
+                    <option value="xml">XML</option>
+                    <option value="yaml">YAML</option>
+                    <option value="markdown">Markdown</option>
+                    <option value="bash">Bash</option>
+                    <option value="powershell">PowerShell</option>
+                    <option value="php">PHP</option>
+                    <option value="ruby">Ruby</option>
+                    <option value="go">Go</option>
+                    <option value="rust">Rust</option>
+                    <option value="typescript">TypeScript</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="code">
+                    <i class="fas fa-file-code"></i>
+                    Code
+                </label>
+                <textarea id="code" name="code" required 
+                         placeholder="Paste your code here..." 
+                         rows="15"></textarea>
+            </div>
+
+            <div class="code-preview" id="code-preview" style="display: none;">
+                <h3>
+                    <i class="fas fa-eye"></i>
+                    Preview
+                </h3>
+                <pre><code id="preview-code" class="language-text"></code></pre>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-share"></i>
+                    Share Code
+                </button>
+                <button type="button" class="btn btn-secondary" id="preview-btn">
+                    <i class="fas fa-eye"></i>
+                    Preview
+                </button>
+                <a href="/dashboard" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </form>
+
+        <div class="code-guidelines">
+            <h3>
+                <i class="fas fa-lightbulb"></i>
+                Tips for Better Code Sharing
+            </h3>
+            <ul>
+                <li><i class="fas fa-check"></i> Choose the correct language for syntax highlighting</li>
+                <li><i class="fas fa-check"></i> Use descriptive titles</li>
+                <li><i class="fas fa-check"></i> Include comments in your code when helpful</li>
+                <li><i class="fas fa-check"></i> Preview your code before sharing</li>
+                <li><i class="fas fa-check"></i> All team members can view your snippets</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

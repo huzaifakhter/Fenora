@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - TeamConnect{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>
+            <i class="fas fa-tachometer-alt"></i>
+            Dashboard
+        </h1>
+        <p>Welcome back, <strong>{{ current_user }}</strong>! Share and collaborate with your team.</p>
+    </div>
+
+    <!-- Search Box -->
+    <div class="search-box">
+        <input type="text" id="content-search" placeholder="Search files, code snippets, and messages..." />
+        <i class="fas fa-search"></i>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <a href="/upload" class="action-card">
+            <i class="fas fa-upload"></i>
+            <span>Upload File</span>
+        </a>
+        <a href="/code" class="action-card">
+            <i class="fas fa-code"></i>
+            <span>Share Code</span>
+        </a>
+        <div class="action-card" onclick="toggleMessageForm()">
+            <i class="fas fa-comment"></i>
+            <span>Post Message</span>
+        </div>
+        <div class="action-card" onclick="showRecentActivity()">
+            <i class="fas fa-history"></i>
+            <span>Recent Activity</span>
+        </div>
+    </div>
+
+    <!-- Message Form (Hidden by default) -->
+    <div id="message-form" class="message-form" style="display: none;">
+        <form method="post" action="/message">
+            <div class="form-group">
+                <label for="message">
+                    <i class="fas fa-comment"></i>
+                    Post a Message
+                </label>
+                <textarea id="message" name="message" required 
+                         placeholder="Share your thoughts with the team..."></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                    Post Message
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="toggleMessageForm()">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Service Tabs -->
+    <div class="service-tabs">
+        <button class="tab-button active" data-tab="messages">
+            <i class="fas fa-comments"></i>
+            Recent Messages
+        </button>
+        <button class="tab-button" data-tab="files">
+            <i class="fas fa-folder-open"></i>
+            Shared Files
+        </button>
+        <button class="tab-button" data-tab="snippets">
+            <i class="fas fa-code"></i>
+            Code Snippets
+        </button>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-container">
+        <!-- Recent Messages -->
+        <div id="messages-content" class="tab-content active">
+            <div class="content-list">
+                {% if messages %}
+                    {% for message_id, message in messages.items() %}
+                    <div class="content-item message-item">
+                        <div class="content-meta">
+                            <span class="author">
+                                <i class="fas fa-user"></i>
+                                {{ message.posted_by }}
+                            </span>
+                            <span class="timestamp">
+                                {{ message.created_at[:19] }}
+                            </span>
+                        </div>
+                        <div class="content-body">
+                            <p>{{ message.content }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-comment-slash"></i>
+                    <p>No messages yet. Be the first to share something!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Shared Files -->
+        <div id="files-content" class="tab-content">
+            <div class="content-list">
+                {% if files %}
+                    {% for file_id, file in files.items() %}
+                    <div class="content-item file-item">
+                        <div class="file-icon">
+                            <i class="fas fa-file"></i>
+                        </div>
+                        <div class="file-info">
+                            <h3>{{ file.original_name }}</h3>
+                            <div class="content-meta">
+                                <span class="author">
+                                    <i class="fas fa-user"></i>
+                                    {{ file.uploaded_by }}
+                                </span>
+                                <span class="file-size">
+                                    {{ "%.1f"|format(file.file_size / 1024) }} KB
+                                </span>
+                                <span class="timestamp">
+                                    {{ file.upload_date[:19] }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <a href="/uploads/{{ file.stored_name }}" target="_blank" class="btn btn-sm btn-primary">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            {% if file.uploaded_by == current_user or is_admin %}
+                            <button onclick="deleteFile('{{ file_id }}')" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No files shared yet. Upload your first file!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Code Snippets -->
+        <div id="snippets-content" class="tab-content">
+            <div class="content-list">
+                {% if snippets %}
+                    {% for snippet_id, snippet in snippets.items() %}
+                    <div class="content-item snippet-item">
+                        <div class="snippet-header">
+                            <h3>{{ snippet.title }}</h3>
+                            <div class="content-meta">
+                                <span class="language-badge">{{ snippet.language }}</span>
+                                <span class="author">
+                                    <i class="fas fa-user"></i>
+                                    {{ snippet.posted_by }}
+                                </span>
+                                <span class="timestamp">
+                                    {{ snippet.created_at[:19] }}
+                                </span>
+                                {% if snippet.posted_by == current_user or is_admin %}
+                                <button onclick="deleteSnippet('{{ snippet_id }}')" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="snippet-code">
+                            <pre><code class="language-{{ snippet.language }}">{{ snippet.code }}</code></pre>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-code"></i>
+                    <p>No code snippets yet. Share your first snippet!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Section (Always visible) -->
+    <div class="recent-activity-section">
+        <div class="section-header">
+            <h2>
+                <i class="fas fa-history"></i>
+                Recent Activity
+            </h2>
+        </div>
+        <div class="activity-timeline">
+            {% if recent_activity %}
+                {% for activity in recent_activity %}
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        {% if activity.operation == 'upload' %}
+                            <i class="fas fa-upload"></i>
+                        {% elif activity.operation == 'create' %}
+                            <i class="fas fa-plus"></i>
+                        {% elif activity.operation == 'delete' %}
+                            <i class="fas fa-trash"></i>
+                        {% elif activity.operation == 'login' %}
+                            <i class="fas fa-sign-in-alt"></i>
+                        {% else %}
+                            <i class="fas fa-activity"></i>
+                        {% endif %}
+                    </div>
+                    <div class="activity-content">
+                        <p>
+                            <strong>{{ activity.username }}</strong>
+                            {{ activity.operation }}
+                            {{ activity.resource_type }}
+                            <em>"{{ activity.resource_name }}"</em>
+                        </p>
+                        <small class="timestamp">{{ activity.timestamp[:19] }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-history"></i>
+                <p>No recent activity.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
