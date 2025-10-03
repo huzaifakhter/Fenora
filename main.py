@@ -14,25 +14,20 @@ import threading
 import shutil
 from pathlib import Path
 
-# Initialize FastAPI app
 app = FastAPI(
     title="Fenora - LAN Resource Sharing",
     description="Share files, code snippets, and messages across your local network",
     version="1.0.0"
 )
 
-# Configure static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 templates = Jinja2Templates(directory="templates")
 
-# Security
 security = HTTPBasic()
 
-# Global lock for JSON file operations
 json_lock = threading.Lock()
 
-# Data file paths
 DATA_DIR = Path("data")
 DATA_DIR.mkdir(exist_ok=True)
 
@@ -42,11 +37,9 @@ SNIPPETS_FILE = DATA_DIR / "snippets.json"
 MESSAGES_FILE = DATA_DIR / "messages.json"
 ACTIVITY_LOG_FILE = DATA_DIR / "activity_log.json"
 
-# Initialize data files if they don't exist
 def init_data_files():
     """Initialize JSON data files with default structure"""
     
-    # Users file - create admin user by default
     if not USERS_FILE.exists():
         admin_password = hashlib.sha256("admin".encode()).hexdigest()
         users_data = {
@@ -59,13 +52,12 @@ def init_data_files():
         }
         save_json(USERS_FILE, users_data)
     
-    # Other data files
     for file_path in [FILES_FILE, SNIPPETS_FILE, MESSAGES_FILE, ACTIVITY_LOG_FILE]:
         if not file_path.exists():
             if file_path == ACTIVITY_LOG_FILE:
-                save_json(file_path, [])  # Activity log is a list
+                save_json(file_path, [])
             else:
-                save_json(file_path, {})  # Others are dictionaries
+                save_json(file_path, {})
 
 def load_json(file_path: Path):
     """Safely load JSON data with file locking"""
@@ -97,14 +89,11 @@ def log_activity(username: str, operation: str, resource_name: str, resource_typ
     activity_log.append(log_entry)
     save_json(ACTIVITY_LOG_FILE, activity_log)
 
-# Initialize data on startup
 init_data_files()
 
-# Session management (simple in-memory for demo)
 active_sessions = {}
 
 def create_session(username: str) -> str:
-    """Create a new session for user"""
     session_id = secrets.token_urlsafe(32)
     active_sessions[session_id] = {
         "username": username,
@@ -149,15 +138,12 @@ async def login_page(request: Request):
 async def login(request: Request, username: str = Form(...), password: str = Form(...)):
     """Handle login form submission"""
     if verify_user(username, password):
-        # Update last login
         users = load_json(USERS_FILE)
         users[username]["last_login"] = datetime.now().isoformat()
         save_json(USERS_FILE, users)
         
-        # Create session
         session_id = create_session(username)
         
-        # Log activity
         log_activity(username, "login", "system", "authentication")
         
         response = RedirectResponse(url="/dashboard", status_code=302)
@@ -189,13 +175,11 @@ async def dashboard(request: Request):
     if not current_user:
         return RedirectResponse(url="/login", status_code=302)
     
-    # Load all data for dashboard
     files_data = load_json(FILES_FILE)
     snippets_data = load_json(SNIPPETS_FILE)
     messages_data = load_json(MESSAGES_FILE)
     activity_log = load_json(ACTIVITY_LOG_FILE)
     
-    # Get recent activity (last 10 entries)
     recent_activity = sorted(activity_log, key=lambda x: x['timestamp'], reverse=True)[:10]
     
     return templates.TemplateResponse("dashboard.html", {
@@ -227,17 +211,14 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     if not current_user:
         return RedirectResponse(url="/login", status_code=302)
     
-    # Create unique filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     file_extension = Path(file.filename).suffix
     unique_filename = f"{timestamp}_{secrets.token_hex(8)}{file_extension}"
     file_path = Path("uploads") / unique_filename
     
-    # Save file
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
-    # Save file metadata
     files_data = load_json(FILES_FILE)
     file_id = secrets.token_hex(16)
     
@@ -252,7 +233,6 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     
     save_json(FILES_FILE, files_data)
     
-    # Log activity
     log_activity(current_user, "upload", file.filename, "file")
     
     return RedirectResponse(url="/dashboard", status_code=302)
@@ -295,7 +275,6 @@ async def post_code(
     
     save_json(SNIPPETS_FILE, snippets_data)
     
-    # Log activity
     log_activity(current_user, "create", title, "code_snippet")
     
     return RedirectResponse(url="/dashboard", status_code=302)
@@ -321,7 +300,6 @@ async def post_message(
     
     save_json(MESSAGES_FILE, messages_data)
     
-    # Log activity
     log_activity(current_user, "create", f"Message: {message[:50]}...", "message")
     
     return RedirectResponse(url="/dashboard", status_code=302)
@@ -375,7 +353,6 @@ async def create_user(
     
     save_json(USERS_FILE, users_data)
     
-    # Log activity
     log_activity(current_user, "create", username, "user")
     
     return RedirectResponse(url="/admin", status_code=302)
@@ -394,20 +371,16 @@ async def delete_file(request: Request, file_id: str):
     
     file_info = files_data[file_id]
     
-    # Check if user can delete (owner or admin)
     if file_info["uploaded_by"] != current_user and not is_admin(current_user):
         return JSONResponse({"error": "Permission denied"}, status_code=403)
     
-    # Delete physical file
     file_path = Path("uploads") / file_info["stored_name"]
     if file_path.exists():
         file_path.unlink()
     
-    # Remove from metadata
     del files_data[file_id]
     save_json(FILES_FILE, files_data)
     
-    # Log activity
     log_activity(current_user, "delete", file_info["original_name"], "file")
     
     return JSONResponse({"success": True})
@@ -426,15 +399,12 @@ async def delete_snippet(request: Request, snippet_id: str):
     
     snippet_info = snippets_data[snippet_id]
     
-    # Check if user can delete (owner or admin)
     if snippet_info["posted_by"] != current_user and not is_admin(current_user):
         return JSONResponse({"error": "Permission denied"}, status_code=403)
     
-    # Remove snippet
     del snippets_data[snippet_id]
     save_json(SNIPPETS_FILE, snippets_data)
     
-    # Log activity
     log_activity(current_user, "delete", snippet_info["title"], "code_snippet")
     
     return JSONResponse({"success": True})
