@@ -16,7 +16,7 @@ from pathlib import Path
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="TeamConnect - LAN Resource Sharing",
+    title="Fenora - LAN Resource Sharing",
     description="Share files, code snippets, and messages across your local network",
     version="1.0.0"
 )
@@ -440,7 +440,7 @@ async def delete_snippet(request: Request, snippet_id: str):
     return JSONResponse({"success": True})
 
 if __name__ == "__main__":
-    print("Starting TeamConnect LAN Resource Sharing Server...")
+    print("Starting Fenora LAN Resource Sharing Server...")
     print("Server will be accessible at http://0.0.0.0:8000")
     print("Default admin credentials: admin / admin")
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

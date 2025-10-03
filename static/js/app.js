@@ -1,7 +1,7 @@
 // Theme Management
 class ThemeManager {
     constructor() {
-        this.themeKey = 'teamconnect-theme';
+        this.themeKey = 'fenora-theme';
         this.init();
     }
 
@@ -588,15 +588,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show welcome notification on dashboard
     if (window.location.pathname === '/dashboard' && window.notifications) {
         setTimeout(() => {
-            window.notifications.show('Welcome to TeamConnect! Share and collaborate with your team.', 'info', 3000);
+            window.notifications.show('Welcome to Fenora! Share and collaborate with your team.', 'info', 3000);
         }, 1000);
     }
 
-    console.log('TeamConnect initialized successfully!');
+    console.log('Fenora initialized successfully!');
 });
 
 // Global utility functions
-window.TeamConnect = {
+window.Fenora = {
     deleteFile: deleteFile,
     deleteSnippet: deleteSnippet,
     toggleMessageForm: toggleMessageForm,
